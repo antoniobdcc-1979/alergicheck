@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Jaime Safe Food",
+    "slug": "jaime-safe-food",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "family.jaime.safefood"
+    }
+  }
+}

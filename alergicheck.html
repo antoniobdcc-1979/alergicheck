@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="AlergiCheck" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>AlergiCheck — Jaime</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f3; min-height: 100vh; }
+
+    .app { max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* HEADER */
+    .header { padding: 52px 16px 14px; background: #fff; border-bottom: 1px solid #ececea; }
+    .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .logo { width: 40px; height: 40px; border-radius: 50%; background: #fce8e8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+    .app-title { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+    .app-version { font-size: 11px; color: #999; }
+    .profile-pill { display: inline-flex; align-items: center; gap: 5px; background: #f5f5f3; border: 1px solid #e8e8e6; border-radius: 20px; padding: 4px 10px; font-size: 12px; color: #666; }
+
+    /* BADGES */
+    .badges-section { padding: 12px 16px; border-bottom: 1px solid #ececea; }
+    .section-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+    .badge.alto { background: #fce8e8; color: #8b1a1a; border: 1px solid #f5b8b8; }
+    .badge.medio { background: #fef3e2; color: #7a4a00; border: 1px solid #f8d48a; }
+
+    /* TABS */
+    .tabs { display: flex; border-bottom: 1px solid #ececea; }
+    .tab { flex: 1; padding: 12px 8px; font-size: 13px; text-align: center; cursor: pointer; color: #999; background: none; border: none; border-bottom: 2px solid transparent; transition: all 0.15s; font-weight: 500; }
+    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+
+    /* CONTENT */
+    .content { padding: 16px; flex: 1; }
+
+    /* MODE SELECTOR */
+    .mode-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .mode-btn { border: 1px solid #e0e0de; border-radius: 12px; padding: 10px 6px; background: #f9f9f7; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .mode-btn.active { background: #fff; border-color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .mode-btn .mode-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    .mode-btn .mode-text { font-size: 10px; color: #666; display: block; line-height: 1.3; font-weight: 500; }
+    .mode-btn.active .mode-text { color: #1a1a1a; }
+
+    /* HINT */
+    .mode-hint { background: #f5f5f3; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 14px; }
+
+    /* UPLOAD */
+    .upload-zone { border: 2px dashed #d0d0ce; border-radius: 14px; padding: 28px 16px; text-align: center; cursor: pointer; background: #fafafa; transition: border-color 0.2s; position: relative; }
+    .upload-zone:active { border-color: #888; background: #f5f5f5; }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+    .upload-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .upload-sub { font-size: 12px; color: #999; }
+
+    .preview-wrap { position: relative; display: none; margin-bottom: 12px; }
+    .preview-img { width: 100%; border-radius: 12px; border: 1px solid #ececea; max-height: 240px; object-fit: cover; display: block; }
+    .btn-change { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+
+    /* BUTTON */
+    .btn-analyze { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; transition: opacity 0.15s; }
+    .btn-analyze:active { opacity: 0.8; }
+    .btn-analyze:disabled { opacity: 0.4; }
+
+    /* LOADING */
+    .loading-state { padding: 32px 16px; text-align: center; display: none; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid #ececea; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: #666; }
+
+    /* RESULT */
+    .result-card { border-radius: 14px; border: 1px solid #ececea; background: #fff; overflow: hidden; display: none; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .result-header { padding: 16px; display: flex; align-items: center; gap: 12px; }
+    .semaforo { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 24px; }
+    .semaforo.seguro { background: #e8f5e0; }
+    .semaforo.precaucion { background: #fef3e2; }
+    .semaforo.peligro { background: #fce8e8; }
+    .result-verdict { font-size: 17px; font-weight: 700; }
+    .verdict-seguro { color: #2d7a1f; }
+    .verdict-precaucion { color: #8a5500; }
+    .verdict-peligro { color: #b01a1a; }
+    .result-badge { font-size: 11px; color: #999; margin-top: 2px; }
+
+    .result-body { padding: 12px 16px 16px; border-top: 1px solid #ececea; }
+    .result-resumen { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 12px; }
+    .identified-tag { font-size: 12px; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+    .identified-tag strong { color: #1a1a1a; }
+
+    .detection-group { margin-bottom: 10px; }
+    .detection-group-title { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .alergeno-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 10px; margin-bottom: 5px; }
+    .alergeno-item.alto { background: #fce8e8; }
+    .alergeno-item.medio { background: #fef3e2; }
+    .alergeno-item.bajo { background: #e8f5e0; }
+    .alergeno-item.sospecha { background: #fef3e2; border: 1px dashed #f0c060; }
+    .alergeno-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .alergeno-nombre { font-size: 13px; font-weight: 600; color: #1a1a1a; display: block; }
+    .alergeno-nota { font-size: 11px; color: #666; display: block; margin-top: 1px; }
+
+    .advertencia-box { background: #f5f5f3; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #555; line-height: 1.5; margin-top: 10px; }
+
+    /* API TAB */
+    .api-section { padding: 16px; }
+    .api-card { background: #f9f9f7; border-radius: 12px; border: 1px solid #ececea; padding: 14px; margin-bottom: 14px; }
+    .api-card-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .api-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd; background: #fff; font-size: 14px; color: #1a1a1a; margin-bottom: 8px; }
+    .api-input:focus { outline: none; border-color: #1a1a1a; }
+    .btn-save { width: 100%; padding: 11px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .key-ok { font-size: 13px; color: #2d7a1f; display: none; align-items: center; gap: 5px; margin-top: 8px; }
+
+    .steps-card { background: #f9f9f7; border-radius: 12px; border: 1px solid #ececea; padding: 14px; }
+    .steps-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 12px; }
+    .step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .step-text { font-size: 13px; color: #444; line-height: 1.5; }
+    .step-text a { color: #0066cc; text-decoration: none; }
+
+    .install-card { background: #e8f5e0; border-radius: 12px; border: 1px solid #b8dda8; padding: 14px; margin-top: 14px; }
+    .install-title { font-size: 14px; font-weight: 600; color: #1a4a10; margin-bottom: 10px; }
+    .install-text { font-size: 13px; color: #2d5a20; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">🛡️</div>
+      <div>
+        <div class="app-title">AlergiCheck</div>
+        <div class="app-version">Analizador inteligente de alergias</div>
+      </div>
+    </div>
+    <div class="profile-pill">👦 Jaime, 9 años</div>
+  </div>
+
+  <div class="badges-section">
+    <div class="section-label">Alergias de Jaime</div>
+    <div class="badges-row">
+      <span class="badge alto">Avellana ⚠️ alta</span>
+      <span class="badge alto">Melocotón PR-10 ⚠️ alta</span>
+      <span class="badge medio">Almendra</span>
+      <span class="badge medio">Pistacho</span>
+      <span class="badge medio">Nuez de nogal</span>
+      <span class="badge medio">Cacahuete</span>
+      <span class="badge medio">Piñón</span>
+      <span class="badge medio">Semilla girasol</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('analizar')">Analizar</button>
+    <button class="tab" onclick="switchTab('apikey')">Clave API</button>
+  </div>
+
+  <div id="tab-analizar" class="content">
+    <div class="mode-label">¿Qué quieres analizar?</div>
+    <div class="mode-grid">
+      <button class="mode-btn active" onclick="setMode('etiqueta')" id="mode-etiqueta">
+        <span class="mode-icon">🏷️</span>
+        <span class="mode-text">Etiqueta o ingredientes</span>
+      </button>
+      <button class="mode-btn" onclick="setMode('plato')" id="mode-plato">
+        <span class="mode-icon">🍽️</span>
+        <span class="mode-text">Plato o receta</span>
+      </button>
+      <button class="mode-btn" onclick="setMode('producto')" id="mode-producto">
+        <span class="mode-icon">🛒</span>
+        <span class="mode-text">Producto envasado</span>
+      </button>
+    </div>
+
+    <div class="mode-hint" id="modeHint">
+      📋 Sube una foto clara de la lista de ingredientes o ficha técnica del producto.
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(event)" />
+      <span class="upload-icon">📷</span>
+      <div class="upload-title">Subir o hacer foto</div>
+      <div class="upload-sub">Toca para seleccionar imagen</div>
+    </div>
+
+    <div class="preview-wrap" id="previewWrap">
+      <img id="previewImg" class="preview-img" />
+      <button class="btn-change" onclick="changePhoto()">Cambiar foto</button>
+    </div>
+
+    <button class="btn-analyze" id="btnAnalyze" onclick="analyzeImage()">
+      🔍 Analizar con IA
+    </button>
+
+    <div class="loading-state" id="loadingState">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">Analizando...</div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <div class="semaforo" id="semaforoIcon"></div>
+        <div>
+          <div class="result-verdict" id="resultVerdict"></div>
+          <div class="result-badge" id="resultBadge"></div>
+        </div>
+      </div>
+      <div class="result-body">
+        <div class="result-resumen" id="resultResumen"></div>
+        <div id="identifiedTag"></div>
+        <div id="alergenosConfirmados"></div>
+        <div id="alergenosSospecha"></div>
+        <div id="advertenciaExtra"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-apikey" style="display:none;">
+    <div class="api-section">
+      <div class="api-card">
+        <div class="api-card-label">Clave API de Anthropic</div>
+        <input type="password" id="apiKeyInput" class="api-input" placeholder="sk-ant-api03-..." />
+        <button class="btn-save" onclick="saveKey()">💾 Guardar clave</button>
+        <div class="key-ok" id="keySaved">✅ Clave guardada correctamente</div>
+      </div>
+
+      <div class="steps-card">
+        <div class="steps-title">¿Cómo obtener la clave API? (gratis)</div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Ve a <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> y crea una cuenta gratuita con tu email</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">En el menú lateral izquierdo, haz clic en <strong>"API Keys"</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Pulsa <strong>"Create Key"</strong>, ponle un nombre (ej: "AlergiCheck") y cópiala</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">Pégala arriba y pulsa Guardar. Anthropic da <strong>5$ de créditos gratis</strong> — cada análisis cuesta aprox. 0,01€</div>
+        </div>
+      </div>
+
+      <div class="install-card">
+        <div class="install-title">📱 Instalar como app en el móvil</div>
+        <div class="install-text">
+          <strong>iPhone (Safari):</strong> Pulsa el botón compartir ↑ → "Añadir a pantalla de inicio"<br><br>
+          <strong>Android (Chrome):</strong> Pulsa el menú ⋮ → "Añadir a pantalla de inicio" o "Instalar app"
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const JAIME_ALERGIAS = `
+ALERGIAS Y SENSIBILIZACIONES DE JAIME (niño, 9 años, análisis IgE específica):
+- Avellana: 24.40 kU/l — NIVEL MODERADO-ALTO — evitar estrictamente
+- rPru p1 PR-10 Melocotón: 29.50 kU/l — NIVEL MODERADO-ALTO (proteína LTP, síndrome alergia oral, rosáceas)
+- Almendra: 3.62 kU/l — nivel bajo-moderado — evitar
+- Pistacho: 2.04 kU/l — nivel bajo-moderado — evitar
+- Nuez de nogal: 2.14 kU/l — nivel bajo-moderado — evitar
+- Cacahuete: 0.94 kU/l — nivel bajo (**) — precaución
+- Piñón (Pinus edulis): 0.47 kU/l — nivel bajo — precaución
+- Semilla de girasol: 0.91 kU/l — nivel bajo — precaución
+- IgE total: 356 kU/L — muy elevada, atopia general importante
+IMPORTANTE: por reactividad cruzada, también debe evitar otros frutos de cáscara no testados.`;
+
+const SYSTEM_PROMPTS = {
+  etiqueta: `Eres un alergólogo pediátrico experto analizando etiquetas para un niño alérgico.
+${JAIME_ALERGIAS}
+TAREA: Lee todos los ingredientes visibles. Busca ingredientes problemáticos directamente y por nombres alternativos, derivados, aceites, harinas. Fíjate en avisos de trazas.
+Responde ÚNICAMENTE en JSON sin markdown:
+{"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases","tipo_analisis":"etiqueta","alergenos_confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"alergenos_sospecha":[],"advertencias_adicionales":"texto o null"}`,
+
+  plato: `Eres un alergólogo pediátrico experto en reconocimiento visual de alimentos para un niño alérgico.
+${JAIME_ALERGIAS}
+TAREA: Analiza con DOS capas:
+CAPA 1 — VISUAL: ¿Ves físicamente ingredientes problemáticos en el plato?
+CAPA 2 — INFERENCIA: Identifica el plato. ¿Suele contener frutos secos por tradición culinaria? (pesto=piñones, tarta Santiago=almendra, pad thai=cacahuete, romesco=almendra/avellana, baklava=pistachos/nueces, mole=cacahuete, etc.). Sé exhaustivo con cocina española, árabe, asiática, italiana y de Oriente Medio.
+Si hay sospecha aunque no certeza → PRECAUCIÓN con explicación.
+Responde ÚNICAMENTE en JSON sin markdown:
+{"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases","tipo_analisis":"plato","plato_identificado":"nombre del plato","alergenos_confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"alergenos_sospecha":[{"nombre":"...","motivo":"por qué suele estar","certeza":"posible|probable|muy probable"}],"advertencias_adicionales":"qué preguntar al cocinero o null"}`,
+
+  producto: `Eres un alergólogo pediátrico experto analizando productos alimentarios para un niño alérgico.
+${JAIME_ALERGIAS}
+TAREA: Analiza con TRES capas:
+CAPA 1 — TEXTO VISIBLE: Lee ingredientes, alérgenos y avisos visibles.
+CAPA 2 — PRODUCTO: Identifica marca/tipo. ¿Ese producto conocido suele contener frutos secos?
+CAPA 3 — CATEGORÍA: ¿Galletas, barritas, chocolate, cereales, salsas... suelen contener frutos secos como ingrediente o trazas?
+Responde ÚNICAMENTE en JSON sin markdown:
+{"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases","tipo_analisis":"producto","producto_identificado":"nombre/marca o tipo","alergenos_confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"alergenos_sospecha":[{"nombre":"...","motivo":"por qué puede contenerlo","certeza":"posible|probable|muy probable"}],"advertencias_adicionales":"recomendación o null"}`
+};
+
+const MODE_HINTS = {
+  etiqueta: '📋 Sube una foto clara de la lista de ingredientes o ficha técnica del producto.',
+  plato: '🍽️ Foto del plato o receta. La IA identifica el plato e infiere si suele llevar frutos secos por tradición culinaria.',
+  producto: '🛒 Foto del producto o su envase. La IA reconoce el producto y evalúa si su categoría es de riesgo.'
+};
+
+let currentMode = 'etiqueta';
+let currentFile = null;
+let apiKey = localStorage.getItem('alergicheck_key') || '';
+
+if (apiKey) {
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('keySaved').style.display = 'flex';
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  ['etiqueta','plato','producto'].forEach(m => {
+    document.getElementById('mode-' + m).classList.toggle('active', m === mode);
+  });
+  document.getElementById('modeHint').textContent = MODE_HINTS[mode];
+  document.getElementById('resultCard').style.display = 'none';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'analizar') || (i === 1 && tab === 'apikey'));
+  });
+  document.getElementById('tab-analizar').style.display = tab === 'analizar' ? 'block' : 'none';
+  document.getElementById('tab-apikey').style.display = tab === 'apikey' ? 'block' : 'none';
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  currentFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('previewImg').src = ev.target.result;
+    document.getElementById('previewWrap').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('btnAnalyze').style.display = 'flex';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function changePhoto() {
+  document.getElementById('fileInput').value = '';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('btnAnalyze').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+  currentFile = null;
+  const input = document.getElementById('fileInput');
+  input.click();
+}
+
+function saveKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-')) { alert('La clave debe empezar por sk-ant-'); return; }
+  apiKey = val;
+  localStorage.setItem('alergicheck_key', val);
+  document.getElementById('keySaved').style.display = 'flex';
+}
+
+const loadingMsgs = {
+  etiqueta: ['Leyendo ingredientes...', 'Buscando alérgenos...', 'Revisando trazas y advertencias...'],
+  plato: ['Identificando el plato...', 'Analizando ingredientes visibles...', 'Consultando tradición culinaria...'],
+  producto: ['Reconociendo el producto...', 'Analizando categoría de riesgo...', 'Buscando alérgenos ocultos...']
+};
+
+async function analyzeImage() {
+  if (!apiKey) { alert('Primero guarda tu clave API en la pestaña "Clave API"'); switchTab('apikey'); return; }
+  if (!currentFile) return;
+
+  const btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+
+  const msgs = loadingMsgs[currentMode];
+  let idx = 0;
+  const loadingEl = document.getElementById('loadingText');
+  loadingEl.textContent = msgs[0];
+  const interval = setInterval(() => { idx = (idx + 1) % msgs.length; loadingEl.textContent = msgs[idx]; }, 1800);
+
+  try {
+    const base64 = await toBase64(currentFile);
+    const mediaType = currentFile.type || 'image/jpeg';
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPTS[currentMode],
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: '¿Puede Jaime tomar esto? Analiza en profundidad.' }
+        ]}]
+      })
+    });
+
+    clearInterval(interval);
+    const data = await resp.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    let result;
+    try { result = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch { result = { veredicto: 'PRECAUCIÓN', titulo: 'No se pudo analizar la imagen', resumen: 'La foto no era suficientemente clara. Intenta con mejor iluminación y más cerca.', tipo_analisis: currentMode, alergenos_confirmados: [], alergenos_sospecha: [], advertencias_adicionales: null }; }
+
+    showResult(result);
+  } catch (err) {
+    clearInterval(interval);
+    document.getElementById('loadingState').style.display = 'none';
+    btn.disabled = false;
+    btn.style.display = 'flex';
+    alert('Error de conexión. Revisa tu clave API e internet.');
+  }
+}
+
+function showResult(r) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('btnAnalyze').disabled = false;
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+
+  const iconEl = document.getElementById('semaforoIcon');
+  const verdictEl = document.getElementById('resultVerdict');
+  iconEl.className = 'semaforo';
+
+  if (r.veredicto === 'SEGURO') {
+    iconEl.classList.add('seguro'); iconEl.textContent = '✅';
+    verdictEl.className = 'result-verdict verdict-seguro';
+  } else if (r.veredicto === 'PRECAUCIÓN') {
+    iconEl.classList.add('precaucion'); iconEl.textContent = '⚠️';
+    verdictEl.className = 'result-verdict verdict-precaucion';
+  } else {
+    iconEl.classList.add('peligro'); iconEl.textContent = '🚫';
+    verdictEl.className = 'result-verdict verdict-peligro';
+  }
+
+  verdictEl.textContent = r.titulo || r.veredicto;
+  const badges = { etiqueta: '📋 Análisis de ingredientes', plato: '🍽️ Análisis de plato/receta', producto: '🛒 Análisis de producto' };
+  document.getElementById('resultBadge').textContent = badges[r.tipo_analisis] || '';
+  document.getElementById('resultResumen').textContent = r.resumen || '';
+
+  const idTag = document.getElementById('identifiedTag');
+  const idVal = r.plato_identificado || r.producto_identificado;
+  idTag.innerHTML = idVal ? `<div class="identified-tag">👁️ Identificado como: <strong>${idVal}</strong></div>` : '';
+
+  const confEl = document.getElementById('alergenosConfirmados');
+  confEl.innerHTML = '';
+  if (r.alergenos_confirmados?.length) {
+    const iconMap = { alto: '🔴', medio: '🟠', bajo: '🟡' };
+    confEl.innerHTML = `<div class="detection-group"><div class="detection-group-title">Detectados directamente</div>${r.alergenos_confirmados.map(a => `<div class="alergeno-item ${a.nivel}">${iconMap[a.nivel]||'⚠️'} <div><span class="alergeno-nombre">${a.nombre}</span><span class="alergeno-nota">${a.nota}</span></div></div>`).join('')}</div>`;
+  }
+
+  const sospEl = document.getElementById('alergenosSospecha');
+  sospEl.innerHTML = '';
+  if (r.alergenos_sospecha?.length) {
+    const cTexto = { posible: 'Posible', probable: 'Probable', 'muy probable': 'Muy probable' };
+    sospEl.innerHTML = `<div class="detection-group"><div class="detection-group-title">Sospecha por tipo de plato/producto</div>${r.alergenos_sospecha.map(a => `<div class="alergeno-item sospecha">🔍 <div><span class="alergeno-nombre">${a.nombre} — ${cTexto[a.certeza]||a.certeza}</span><span class="alergeno-nota">${a.motivo}</span></div></div>`).join('')}</div>`;
+  }
+
+  document.getElementById('advertenciaExtra').innerHTML = r.advertencias_adicionales
+    ? `<div class="advertencia-box">💡 ${r.advertencias_adicionales}</div>` : '';
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>

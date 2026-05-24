@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AlergiCheck" />
+  <meta name="theme-color" content="#1a1208" />
+  <title>AlergiCheck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #fdf8f0;
+      --warm-white: #fff9f2;
+      --ink: #1a1208;
+      --ink-light: #3d2e18;
+      --amber: #e8820c;
+      --amber-light: #fef0dc;
+      --amber-mid: #f5c47a;
+      --green: #2d6a2d;
+      --green-light: #e8f5e0;
+      --green-mid: #7db87d;
+      --red: #b52a1a;
+      --red-light: #fdecea;
+      --red-mid: #e08070;
+      --orange: #d4580a;
+      --orange-light: #fef3e2;
+      --muted: #9a8870;
+      --border: #ede5d8;
+      --card-shadow: 0 4px 24px rgba(26,18,8,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      color: var(--ink);
+    }
+
+    .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--cream); }
+
+    /* ── HERO HEADER ── */
+    .hero {
+      background: var(--ink);
+      padding: 52px 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-pattern {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(232,130,12,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(232,130,12,0.10) 0%, transparent 40%);
+    }
+    .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; position: relative; }
+    .hero-brand { display: flex; align-items: center; gap: 10px; }
+    .hero-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .hero-name { font-family: 'Playfair Display', serif; font-size: 22px; color: #fff; letter-spacing: -0.3px; }
+    .hero-profile { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 6px; }
+    .hero-profile span { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 500; }
+    .hero-tagline { font-size: 13px; color: rgba(255,255,255,0.55); position: relative; }
+
+    /* ── ALLERGY CHIPS ── */
+    .allergy-strip { padding: 14px 20px; background: var(--warm-white); border-bottom: 1px solid var(--border); }
+    .strip-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .chip.high { background: var(--red-light); color: var(--red); border: 1px solid var(--red-mid); }
+    .chip.mid { background: var(--orange-light); color: var(--orange); border: 1px solid var(--amber-mid); }
+
+    /* ── NAV TABS ── */
+    .nav { display: flex; background: var(--warm-white); border-bottom: 1px solid var(--border); }
+    .nav-tab { flex: 1; padding: 13px 8px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; color: var(--muted); background: none; border: none; border-bottom: 2.5px solid transparent; transition: all 0.2s; letter-spacing: 0.01em; }
+    .nav-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+    /* ── MAIN CONTENT ── */
+    .main { padding: 20px; flex: 1; }
+
+    /* ── MODE PILLS ── */
+    .mode-row { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .mode-row::-webkit-scrollbar { display: none; }
+    .mode-pill { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 24px; border: 1.5px solid var(--border); background: var(--warm-white); cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; }
+    .mode-pill.active { background: var(--ink); border-color: var(--ink); }
+    .mode-pill .pill-icon { font-size: 15px; }
+    .mode-pill .pill-text { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .mode-pill.active .pill-text { color: #fff; }
+
+    /* ── HINT CARD ── */
+    .hint-card { background: var(--amber-light); border: 1px solid var(--amber-mid); border-radius: 14px; padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 10px; align-items: flex-start; }
+    .hint-card .hint-icon { font-size: 18px; flex-shrink: 0; }
+    .hint-card .hint-text { font-size: 13px; color: var(--ink-light); line-height: 1.5; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-area { position: relative; }
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 20px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--warm-white);
+      transition: all 0.2s;
+      position: relative;
+    }
+    .upload-zone:active { border-color: var(--amber); background: var(--amber-light); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--amber-light); border: 2px solid var(--amber-mid); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 28px; }
+    .upload-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+    .upload-sub { font-size: 13px; color: var(--muted); }
+
+    /* ── PREVIEW ── */
+    .preview-wrap { display: none; margin-bottom: 16px; position: relative; border-radius: 20px; overflow: hidden; }
+    .preview-img { width: 100%; max-height: 260px; object-fit: cover; display: block; border-radius: 20px; }
+    .preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,18,8,0.5) 0%, transparent 50%); border-radius: 20px; }
+    .btn-change-photo { position: absolute; bottom: 12px; right: 12px; background: rgba(255,255,255,0.92); color: var(--ink); border: none; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+    /* ── ANALYZE BUTTON ── */
+    .btn-analyze {
+      width: 100%; padding: 16px;
+      background: var(--amber);
+      color: #fff;
+      border: none; border-radius: 16px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      display: none; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 14px;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.01em;
+      box-shadow: 0 4px 16px rgba(232,130,12,0.35);
+      transition: all 0.2s;
+    }
+    .btn-analyze:active { transform: scale(0.98); box-shadow: none; }
+    .btn-analyze:disabled { opacity: 0.5; }
+    .btn-analyze .btn-icon { font-size: 18px; }
+
+    /* ── LOADING ── */
+    .loading-state { display: none; padding: 32px 0; text-align: center; }
+    .loading-plate {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--amber-light); border: 3px solid var(--amber-mid);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; font-size: 26px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:0.7} }
+    .loading-msg { font-size: 14px; color: var(--ink-light); font-weight: 500; }
+    .loading-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── RESULT CARD ── */
+    .result-card {
+      display: none;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+    }
+
+    .result-hero {
+      padding: 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .result-hero.seguro { background: var(--green-light); }
+    .result-hero.precaucion { background: var(--orange-light); }
+    .result-hero.peligro { background: var(--red-light); }
+
+    .verdict-badge {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0;
+    }
+    .verdict-badge.seguro { background: var(--green); }
+    .verdict-badge.precaucion { background: var(--orange); }
+    .verdict-badge.peligro { background: var(--red); }
+
+    .verdict-text-wrap { flex: 1; }
+    .verdict-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+    .verdict-label.seguro { color: var(--green); }
+    .verdict-label.precaucion { color: var(--orange); }
+    .verdict-label.peligro { color: var(--red); }
+    .verdict-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); line-height: 1.2; }
+    .verdict-mode { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .result-body { padding: 16px 20px; background: #fff; }
+    .result-summary { font-size: 14px; color: var(--ink-light); line-height: 1.65; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+
+    .id-row { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 13px; }
+    .id-label { color: var(--muted); }
+    .id-value { font-weight: 600; color: var(--ink); }
+
+    .detect-section { margin-bottom: 14px; }
+    .detect-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .alergeno-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; margin-bottom: 6px; }
+    .alergeno-row.alto { background: var(--red-light); border: 1px solid var(--red-mid); }
+    .alergeno-row.medio { background: var(--orange-light); border: 1px solid var(--amber-mid); }
+    .alergeno-row.bajo { background: var(--green-light); border: 1px solid var(--green-mid); }
+    .alergeno-row.sospecha { background: var(--orange-light); border: 1.5px dashed var(--amber-mid); }
+    .arow-icon { font-size: 18px; flex-shrink: 0; }
+    .arow-nombre { font-size: 13px; font-weight: 700; color: var(--ink); display: block; margin-bottom: 2px; }
+    .arow-nota { font-size: 11px; color: var(--ink-light); line-height: 1.4; }
+
+    .warn-box { background: var(--amber-light); border: 1px solid var(--amber-mid); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--ink-light); line-height: 1.5; display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; }
+    .warn-box .warn-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── API TAB ── */
+    .api-main { padding: 20px; }
+    .section-card { background: #fff; border-radius: 20px; border: 1px solid var(--border); padding: 18px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+    .section-card-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); margin-bottom: 14px; }
+    .field-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
+    .api-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--cream); font-size: 14px; color: var(--ink); font-family: 'DM Sans', sans-serif; margin-bottom: 10px; }
+    .api-input:focus { outline: none; border-color: var(--amber); }
+    .btn-save { width: 100%; padding: 13px; background: var(--ink); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .key-ok { font-size: 13px; color: var(--green); display: none; align-items: center; gap: 6px; margin-top: 10px; font-weight: 600; }
+    .step-list { display: flex; flex-direction: column; gap: 12px; }
+    .step-item { display: flex; gap: 12px; align-items: flex-start; }
+    .step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--amber); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .step-desc { font-size: 13px; color: var(--ink-light); line-height: 1.5; }
+    .step-desc a { color: var(--amber); text-decoration: none; font-weight: 600; }
+    .install-banner { background: var(--green-light); border: 1px solid var(--green-mid); border-radius: 16px; padding: 16px; }
+    .install-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--green); margin-bottom: 10px; }
+    .install-row { font-size: 13px; color: #2d4a2d; line-height: 1.7; }
+    .install-row strong { color: var(--green); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-top">
+      <div class="hero-brand">
+        <div class="hero-logo">🛡️</div>
+        <span class="hero-name">AlergiCheck</span>
+      </div>
+      <div class="hero-profile">
+        <span>👦 Jaime, 9 años</span>
+      </div>
+    </div>
+    <div class="hero-tagline">Analiza cualquier alimento antes de dárselo</div>
+  </div>
+
+  <!-- ALLERGY CHIPS -->
+  <div class="allergy-strip">
+    <div class="strip-label">Alergias registradas</div>
+    <div class="chips">
+      <span class="chip high">🔴 Avellana</span>
+      <span class="chip high">🔴 Melocotón PR-10</span>
+      <span class="chip mid">🟠 Almendra</span>
+      <span class="chip mid">🟠 Pistacho</span>
+      <span class="chip mid">🟠 Nuez</span>
+      <span class="chip mid">🟠 Cacahuete</span>
+      <span class="chip mid">🟠 Piñón</span>
+      <span class="chip mid">🟠 Girasol</span>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-tab active" onclick="switchTab('analizar')">Analizar</button>
+    <button class="nav-tab" onclick="switchTab('apikey')">Configuración</button>
+  </div>
+
+  <!-- TAB ANALIZAR -->
+  <div id="tab-analizar" class="main">
+
+    <div class="mode-row">
+      <button class="mode-pill active" onclick="setMode('etiqueta')" id="mode-etiqueta">
+        <span class="pill-icon">🏷️</span>
+        <span class="pill-text">Etiqueta</span>
+      </button>
+      <button class="mode-pill" onclick="setMode('plato')" id="mode-plato">
+        <span class="pill-icon">🍽️</span>
+        <span class="pill-text">Plato o receta</span>
+      </button>
+      <button class="mode-pill" onclick="setMode('producto')" id="mode-producto">
+        <span class="pill-icon">🛒</span>
+        <span class="pill-text">Producto</span>
+      </button>
+    </div>
+
+    <div class="hint-card">
+      <span class="hint-icon">💡</span>
+      <span class="hint-text" id="hintText">Fotografía la lista de ingredientes o ficha técnica del producto para que la IA los analice.</span>
+    </div>
+
+    <div class="upload-area">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(event)" />
+        <div class="upload-circle">📷</div>
+        <div class="upload-title">Sube una foto</div>
+        <div class="upload-sub">Toca para seleccionar o hacer una foto</div>
+      </div>
+
+      <div class="preview-wrap" id="previewWrap">
+        <img id="previewImg" class="preview-img" />
+        <div class="preview-overlay"></div>
+        <button class="btn-change-photo" onclick="changePhoto()">📷 Cambiar foto</button>
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="btnAnalyze" onclick="analyzeImage()">
+      <span class="btn-icon">🔍</span> Analizar con IA
+    </button>
+
+    <!-- LOADING -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-plate" id="loadingPlate">🍽️</div>
+      <div class="loading-msg" id="loadingMsg">Analizando...</div>
+      <div class="loading-sub" id="loadingSub">La IA está revisando el alimento</div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-card" id="resultCard" style="margin-top:18px;">
+      <div class="result-hero" id="resultHero">
+        <div class="verdict-badge" id="verdictBadge"></div>
+        <div class="verdict-text-wrap">
+          <div class="verdict-label" id="verdictLabel"></div>
+          <div class="verdict-title" id="verdictTitle"></div>
+          <div class="verdict-mode" id="verdictMode"></div>
+        </div>
+      </div>
+      <div class="result-body">
+        <div class="result-summary" id="resultSummary"></div>
+        <div id="identifiedRow"></div>
+        <div id="confirmedSection"></div>
+        <div id="suspectSection"></div>
+        <div id="warnSection"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB CONFIG -->
+  <div id="tab-apikey" style="display:none;">
+    <div class="api-main">
+
+      <div class="section-card">
+        <div class="section-card-title">🔑 Clave API</div>
+        <div class="field-label">Tu clave de Anthropic</div>
+        <input type="password" id="apiKeyInput" class="api-input" placeholder="sk-ant-api03-..." />
+        <button class="btn-save" onclick="saveKey()">Guardar clave</button>
+        <div class="key-ok" id="keySaved">✅ Clave guardada y lista para usar</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">📋 Cómo obtenerla</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-dot">1</div>
+            <div class="step-desc">Ve a <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> y crea cuenta gratuita</div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">2</div>
+            <div class="step-desc">En el menú lateral, pulsa <strong>API Keys</strong></div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div class="step-desc">Pulsa <strong>Create Key</strong>, nómbrala "AlergiCheck" y cópiala</div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">4</div>
+            <div class="step-desc">Pégala arriba. Anthropic da <strong>5$ gratis</strong> al registrarte — suficiente para cientos de análisis</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="install-banner">
+        <div class="install-title">📱 Instalar en el móvil</div>
+        <div class="install-row">
+          <strong>iPhone (Safari):</strong> Botón compartir ↑ → "Añadir a pantalla de inicio"<br><br>
+          <strong>Android (Chrome):</strong> Menú ⋮ → "Añadir a pantalla de inicio"
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const JAIME = `ALERGIAS DE JAIME (niño, 9 años):
+- Avellana: 24.40 kU/l — NIVEL ALTO — evitar estrictamente
+- Melocotón rPru p1 PR-10: 29.50 kU/l — NIVEL ALTO (proteína LTP, rosáceas)
+- Almendra: 3.62 kU/l — nivel moderado — evitar
+- Pistacho: 2.04 kU/l — nivel moderado — evitar
+- Nuez de nogal: 2.14 kU/l — nivel moderado — evitar
+- Cacahuete: 0.94 kU/l — nivel bajo — precaución
+- Piñón: 0.47 kU/l — nivel bajo — precaución
+- Semilla de girasol: 0.91 kU/l — nivel bajo — precaución
+- IgE total: 356 kU/L (muy elevada — atopia general)
+Por reactividad cruzada, evitar también otros frutos de cáscara no testados.`;
+
+const PROMPTS = {
+  etiqueta: `Eres un alergólogo pediátrico experto. ${JAIME}
+TAREA: Lee TODOS los ingredientes visibles en la foto (etiqueta, lista de ingredientes, ficha técnica). Busca alérgenos directos y también nombres alternativos, derivados, aceites, harinas. Revisa avisos de trazas.
+Responde SOLO en JSON sin markdown: {"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases del motivo","tipo":"etiqueta","confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"sospecha":[],"aviso":"texto o null"}`,
+
+  plato: `Eres un alergólogo pediátrico experto en gastronomía. ${JAIME}
+TAREA — DOS capas de análisis:
+1. VISUAL: ¿Ves físicamente frutos secos u otros alérgenos de Jaime en el plato?
+2. CULINARIA: ¿Qué plato es? ¿Suele llevar frutos secos por tradición? (pesto→piñones, tarta Santiago→almendra, pad thai→cacahuete, romesco→almendra/avellana, baklava→pistachos, mole→cacahuete, salsa brava con almendra, ajoblanco→almendra, etc.). Considera cocina española, árabe, asiática e italiana exhaustivamente. Si hay sospecha → PRECAUCIÓN con explicación.
+Responde SOLO en JSON sin markdown: {"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases","tipo":"plato","plato":"nombre del plato identificado","confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"sospecha":[{"nombre":"...","motivo":"...","certeza":"posible|probable|muy probable"}],"aviso":"qué preguntar al cocinero o null"}`,
+
+  producto: `Eres un alergólogo pediátrico experto. ${JAIME}
+TAREA — TRES capas:
+1. TEXTO: Lee ingredientes y avisos visibles en el envase.
+2. MARCA/PRODUCTO: Identifica el producto. ¿Su receta habitual lleva frutos secos?
+3. CATEGORÍA: ¿Galletas, barritas, chocolate, cereales, salsas... suelen tener frutos secos o trazas?
+Responde SOLO en JSON sin markdown: {"veredicto":"SEGURO"|"PRECAUCIÓN"|"PELIGRO","titulo":"frase corta max 8 palabras","resumen":"1-2 frases","tipo":"producto","producto":"nombre/marca identificada","confirmados":[{"nombre":"...","nivel":"alto|medio|bajo","nota":"..."}],"sospecha":[{"nombre":"...","motivo":"...","certeza":"posible|probable|muy probable"}],"aviso":"recomendación o null"}`
+};
+
+const HINTS = {
+  etiqueta: 'Fotografía la lista de ingredientes o ficha técnica del producto para que la IA los analice.',
+  plato: 'Sube una foto del plato cocinado o receta. La IA lo identifica y sabe si suele llevar frutos secos por tradición culinaria.',
+  producto: 'Foto del envase o producto. La IA reconoce la marca, la categoría y evalúa el riesgo aunque no vea todos los ingredientes.'
+};
+
+const LOADING = {
+  etiqueta: [['🔍','Leyendo ingredientes...','Buscando alérgenos en el texto'],['⚗️','Analizando derivados...','Revisando nombres alternativos'],['📋','Comprobando trazas...','Revisando advertencias del fabricante']],
+  plato: [['🍽️','Identificando el plato...','Reconociendo la receta'],['👨‍🍳','Consultando tradición culinaria...','Analizando ingredientes típicos'],['🌍','Revisando variantes regionales...','Cocina árabe, asiática, mediterránea']],
+  producto: [['🛒','Reconociendo el producto...','Identificando marca y tipo'],['🔬','Analizando categoría...','¿Qué suele contener este tipo?'],['⚠️','Buscando riesgos ocultos...','Revisando alérgenos frecuentes']]
+};
+
+let mode = 'etiqueta', file = null;
+let apiKey = localStorage.getItem('ac_key') || '';
+if (apiKey) { document.getElementById('apiKeyInput').value = apiKey; document.getElementById('keySaved').style.display = 'flex'; }
+
+function setMode(m) {
+  mode = m;
+  ['etiqueta','plato','producto'].forEach(x => document.getElementById('mode-'+x).classList.toggle('active', x===m));
+  document.getElementById('hintText').textContent = HINTS[m];
+  document.getElementById('resultCard').style.display = 'none';
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.nav-tab').forEach((el,i) => el.classList.toggle('active', (i===0&&t==='analizar')||(i===1&&t==='apikey')));
+  document.getElementById('tab-analizar').style.display = t==='analizar'?'block':'none';
+  document.getElementById('tab-apikey').style.display = t==='apikey'?'block':'none';
+}
+
+function handleFile(e) {
+  const f = e.target.files[0]; if (!f) return; file = f;
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById('previewImg').src = ev.target.result;
+    document.getElementById('previewWrap').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('btnAnalyze').style.display = 'flex';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'none';
+  };
+  r.readAsDataURL(f);
+}
+
+function changePhoto() {
+  document.getElementById('fileInput').value = '';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('btnAnalyze').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+  file = null;
+  document.getElementById('fileInput').click();
+}
+
+function saveKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v.startsWith('sk-ant-')) { alert('La clave debe empezar por sk-ant-'); return; }
+  apiKey = v; localStorage.setItem('ac_key', v);
+  document.getElementById('keySaved').style.display = 'flex';
+}
+
+async function analyzeImage() {
+  if (!apiKey) { alert('Primero guarda tu clave API en Configuración'); switchTab('apikey'); return; }
+  if (!file) return;
+  const btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+
+  const msgs = LOADING[mode]; let idx = 0;
+  const setLoading = () => {
+    const [icon, msg, sub] = msgs[idx % msgs.length];
+    document.getElementById('loadingPlate').textContent = icon;
+    document.getElementById('loadingMsg').textContent = msg;
+    document.getElementById('loadingSub').textContent = sub;
+    idx++;
+  };
+  setLoading();
+  const iv = setInterval(setLoading, 2000);
+
+  try {
+    const b64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:PROMPTS[mode], messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:b64}},{type:'text',text:'¿Puede Jaime tomar esto? Analiza en profundidad.'}]}] })
+    });
+    clearInterval(iv);
+    const data = await resp.json();
+    const raw = data.content?.find(b=>b.type==='text')?.text||'';
+    let r;
+    try { r = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch { r = {veredicto:'PRECAUCIÓN',titulo:'Imagen no clara',resumen:'No se pudo leer bien la imagen. Intenta con mejor iluminación y enfoque.',tipo:mode,confirmados:[],sospecha:[],aviso:null}; }
+    render(r);
+  } catch(e) {
+    clearInterval(iv);
+    document.getElementById('loadingState').style.display='none';
+    btn.disabled=false; btn.style.display='flex';
+    alert('Error de conexión. Verifica tu clave API e internet.');
+  }
+}
+
+function render(r) {
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('btnAnalyze').disabled=false;
+  const card = document.getElementById('resultCard');
+  card.style.display='block';
+
+  const hero = document.getElementById('resultHero');
+  const badge = document.getElementById('verdictBadge');
+  const label = document.getElementById('verdictLabel');
+  const title = document.getElementById('verdictTitle');
+  const modeEl = document.getElementById('verdictMode');
+
+  hero.className = 'result-hero ' + (r.veredicto==='SEGURO'?'seguro':r.veredicto==='PRECAUCIÓN'?'precaucion':'peligro');
+  badge.className = 'verdict-badge ' + (r.veredicto==='SEGURO'?'seguro':r.veredicto==='PRECAUCIÓN'?'precaucion':'peligro');
+  badge.textContent = r.veredicto==='SEGURO'?'✅':r.veredicto==='PRECAUCIÓN'?'⚠️':'🚫';
+  label.className = 'verdict-label ' + (r.veredicto==='SEGURO'?'seguro':r.veredicto==='PRECAUCIÓN'?'precaucion':'peligro');
+  label.textContent = r.veredicto;
+  title.textContent = r.titulo || r.veredicto;
+  const modeNames = {etiqueta:'Análisis de etiqueta',plato:'Análisis de plato/receta',producto:'Análisis de producto'};
+  modeEl.textContent = modeNames[r.tipo] || '';
+
+  document.getElementById('resultSummary').textContent = r.resumen || '';
+
+  const idVal = r.plato || r.producto;
+  document.getElementById('identifiedRow').innerHTML = idVal
+    ? `<div class="id-row"><span class="id-label">👁️ Identificado:</span><span class="id-value">${idVal}</span></div>` : '';
+
+  const iconMap = {alto:'🔴',medio:'🟠',bajo:'🟡'};
+  const certMap = {posible:'Posible',probable:'Probable','muy probable':'Muy probable'};
+
+  const conf = document.getElementById('confirmedSection');
+  conf.innerHTML = r.confirmados?.length
+    ? `<div class="detect-section"><div class="detect-title">Detectados directamente</div>${r.confirmados.map(a=>`<div class="alergeno-row ${a.nivel}">${iconMap[a.nivel]||'⚠️'}<div><span class="arow-nombre">${a.nombre}</span><span class="arow-nota">${a.nota}</span></div></div>`).join('')}</div>` : '';
+
+  const sosp = document.getElementById('suspectSection');
+  sosp.innerHTML = r.sospecha?.length
+    ? `<div class="detect-section"><div class="detect-title">Sospecha por tipo de plato/producto</div>${r.sospecha.map(a=>`<div class="alergeno-row sospecha">🔍<div><span class="arow-nombre">${a.nombre} — ${certMap[a.certeza]||a.certeza}</span><span class="arow-nota">${a.motivo}</span></div></div>`).join('')}</div>` : '';
+
+  document.getElementById('warnSection').innerHTML = r.aviso
+    ? `<div class="warn-box"><span class="warn-icon">💡</span><span>${r.aviso}</span></div>` : '';
+
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
